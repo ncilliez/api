@@ -1,5 +1,9 @@
 <?php
 
+// header('Access-Control-Allow-Origin: *');
+// header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE');
+// header('Access-Control-Allow-Headers: Content-Type');
+
     require_once("db_connect.php");
     $request_method = $_SERVER["REQUEST_METHOD"];
 
@@ -16,6 +20,12 @@
 
         case 'POST':
             AddProduct();
+        break;
+
+        case 'PUT':
+            // Modifier un produit
+            $id = intval($_GET["id"]);
+            updateProduct($id);
         break;
         
         default:
@@ -67,6 +77,38 @@
         header('Content-Type: application/json');
         echo json_encode($response);
     }
-    
 
+    function updateProduct($id)
+    {
+        global $conn;
+        $_PUT = array(); //tableau qui va contenir les données reçues
+        parse_str(file_get_contents('php://input'), $_PUT);
+        $name = $_PUT["name"];
+        $description = $_PUT["description"];
+        $price = $_PUT["price"];
+        $category = $_PUT["category"];
+        $modified = date('Y-m-d H:i:s');
+        //construire la requête SQL
+        $query="UPDATE produit SET name='".$name."', description='".$description."', price='".$price."', category_id='".$category."', modified='".$modified."' WHERE id=".$id;
+        
+        if(mysqli_query($conn, $query))
+        {
+            $response=array(
+            'status' => 1,
+            'status_message' =>'Produit mis a jour avec succes.'
+            );
+        }
+        else
+        {
+            $response=array(
+            'status' => 0,
+            'status_message' =>'Echec de la mise a jour de produit. '. mysqli_error($conn)
+            );
+            
+        }
+        
+        header('Content-Type: application/json');
+        echo json_encode($response);
+    }
+    
 ?>
