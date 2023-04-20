@@ -27,6 +27,12 @@
             $id = intval($_GET["id"]);
             updateProduct($id);
         break;
+
+        case 'DELETE':
+            // Supprimer un produit
+            $id = intval($_GET["id"]);
+            deleteProduct($id);
+        break;
         
         default:
             header("HTTP/1.0 405 Method Not Allowed");
@@ -107,6 +113,28 @@
             
         }
         
+        header('Content-Type: application/json');
+        echo json_encode($response);
+    }
+
+    function deleteProduct($id)
+    {
+        global $conn;
+        $query = "DELETE FROM produit WHERE id=".$id;
+        if(mysqli_query($conn, $query))
+        {
+            $response=array(
+            'status' => 1,
+            'status_message' =>'Produit supprime avec succes.'
+            );
+        }
+        else
+        {
+            $response=array(
+            'status' => 0,
+            'status_message' =>'La suppression du produit a echoue. '. mysqli_error($conn)
+            );
+        }
         header('Content-Type: application/json');
         echo json_encode($response);
     }
