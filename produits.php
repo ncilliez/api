@@ -1,21 +1,22 @@
 <?php
 
-// header('Access-Control-Allow-Origin: *');
-// header('Access-Control-Allow-Methods: GET, POST, PUT, DELETE');
-// header('Access-Control-Allow-Headers: Content-Type');
-
     require_once("db_connect.php");
     $request_method = $_SERVER["REQUEST_METHOD"];
 
     switch ($request_method) {
         case 'GET':
-            if (!empty($_GET["id"])) 
-            {
-                $id = intval($_GET["id"]); 
-                getProducts($id);
-            }else{
+            if (!empty($_GET["id"])) {
+                if (!is_numeric($_GET["id"])) {
+                    $categ = $_GET["id"];
+                    getProducts($categ);
+                } else {
+                    $id = intval($_GET["id"]); 
+                    getProducts($id);
+                }
+            } else {
                 getProducts();
             }
+              
         break;
 
         case 'POST':
@@ -40,34 +41,40 @@
     }
 
     function getProducts($id = null){
-        global $conn;
+        $conn = getConnexion();
         if ($id === null) {
             $query = "SELECT * FROM produit";
         } else {
-            $query = "SELECT * FROM produit WHERE id = " . $id;
+            if(!is_numeric($id)){          
+                $query = "SELECT p.id, p.name, p.description, p.price, c.libelle_categorie as 'categorie' 
+                from produit p inner join categorie c on p.category_id = c.id where c.libelle_categorie = '$id'"; 
+            }else{
+                $query = "SELECT * FROM produit WHERE id = " . $id;
+            }
         }
-        $response = array();
-        $result = mysqli_query($conn, $query);
-        while($row = mysqli_fetch_array($result)){
-            $response[] =  $row; 
-        }
-        header('Content-Type: application/json');
-        echo json_encode($response, JSON_PRETTY_PRINT);
+        $stmt = $conn->prepare($query);
+        $stmt->execute();
+        $response = $stmt->fetchAll(PDO::FETCH_ASSOC);
+        $stmt->closeCursor();
+        sendJSON($response);
     }
 
-    function AddProduct(){
-        global $conn;
+    function addProduct() {
+        $conn = getConnexion();
         $name = $_POST["name"];
         $description = $_POST["description"];
         $price = $_POST["price"];
         $category = $_POST["category"];
         $created = date('Y-m-d H:i:s');
         $modified = date('Y-m-d H:i:s');
-    
+        
         $query = "INSERT INTO produit(name, description, price, category_id, created, modified) 
         VALUES('".$name."', '".$description."', '".$price."', '".$category."', '".$created."', '".$modified."')";
-
-        if(mysqli_query($conn, $query)) {   
+        $stmt = $conn->prepare($query);
+        
+        $result = $stmt->execute();
+        
+        if($result) {   
             $response=array(
                 'status'=> 1,
                 'status_message'=>'Produit ajouté avec succès.'
@@ -78,15 +85,15 @@
                 'status_message'=>'ERREUR! '
             );
         }
-    
+        
         // Retournez la réponse en tant que JSON
         header('Content-Type: application/json');
-        echo json_encode($response);
+        sendJSON($response);
     }
-
+    
     function updateProduct($id)
     {
-        global $conn;
+        $conn = getConnexion();
         $_PUT = array(); //tableau qui va contenir les données reçues
         parse_str(file_get_contents('php://input'), $_PUT);
         $name = $_PUT["name"];
@@ -96,47 +103,57 @@
         $modified = date('Y-m-d H:i:s');
         //construire la requête SQL
         $query="UPDATE produit SET name='".$name."', description='".$description."', price='".$price."', category_id='".$category."', modified='".$modified."' WHERE id=".$id;
+        $stmt = $conn->prepare($query);
         
-        if(mysqli_query($conn, $query))
-        {
+        $result = $stmt->execute();
+        if($result){
             $response=array(
-            'status' => 1,
-            'status_message' =>'Produit mis a jour avec succes.'
+                'status'=> 1,
+                'status_message'=>'Produit mis a jour avec succès.'
             );
-        }
-        else
-        {
+        } else {
             $response=array(
-            'status' => 0,
-            'status_message' =>'Echec de la mise a jour de produit. '. mysqli_error($conn)
+                'status'=> 0,
+                'status_message'=>'ERREUR! '
             );
-            
         }
         
         header('Content-Type: application/json');
-        echo json_encode($response);
+        sendJSON($response);
     }
 
     function deleteProduct($id)
     {
-        global $conn;
+        $conn = getConnexion();
         $query = "DELETE FROM produit WHERE id=".$id;
-        if(mysqli_query($conn, $query))
-        {
+        $stmt = $conn->prepare($query);
+        
+        $result = $stmt->execute();
+        if($result){
             $response=array(
-            'status' => 1,
-            'status_message' =>'Produit supprime avec succes.'
+                'status'=> 1,
+                'status_message'=>'Produit supprimé.'
+            );
+        } else {
+            $response=array(
+                'status'=> 0,
+                'status_message'=>'ERREUR! '
             );
         }
-        else
-        {
-            $response=array(
-            'status' => 0,
-            'status_message' =>'La suppression du produit a echoue. '. mysqli_error($conn)
-            );
-        }
+
         header('Content-Type: application/json');
-        echo json_encode($response);
+        sendJSON($response);
+    }
+
+    function sendJSON($result){
+        header("Access-Control-Allow-origin: *");
+        header("Content-Type: application/json; charset= UTF-8");
+        header("Access-Control-Allow-Methods: GET, POST, PUT, DELETE");
+        header("Access-Control-Max-Age: 3600");
+        header("Access-Control-Allow-Headers: X-Requested-With, Content-Type, X-Token-Auth, Authorization");
+        header("Access-Control-Allow-Credentials: true");
+        echo json_encode($result, JSON_UNESCAPED_UNICODE);
+         // echo json_encode($result, JSON_PRETTY_PRINT);
     }
     
 ?>

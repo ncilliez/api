@@ -1,5 +1,5 @@
 <?php
-    $url = "http://127.0.0.1/api/produits/35"; // supprimer le produit 1
+    $url = "http://127.0.0.1/api/produits/42"; // supprimer le produit 1
     $ch = curl_init();
     curl_setopt($ch, CURLOPT_URL, $url);
     curl_setopt($ch, CURLOPT_CUSTOMREQUEST, "DELETE");
