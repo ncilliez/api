@@ -46,9 +46,9 @@
             $query = "SELECT * FROM produit";
         } else {
             if(!is_numeric($id)){          
-                $query = "SELECT p.id, p.name, p.description, p.price, c.libelle_categorie as 'categorie' 
+                $query = "SELECT p.id, p.name, p.description, p.price, p.image_produit, c.libelle_categorie as 'categorie' 
                 from produit p inner join categorie c on p.category_id = c.id where c.libelle_categorie = '$id'"; 
-            }else{
+            } else {
                 $query = "SELECT * FROM produit WHERE id = " . $id;
             }
         }
@@ -64,12 +64,13 @@
         $name = $_POST["name"];
         $description = $_POST["description"];
         $price = $_POST["price"];
+        $image_produit = $_POST["image_produit"];
         $category = $_POST["category"];
         $created = date('Y-m-d H:i:s');
         $modified = date('Y-m-d H:i:s');
         
-        $query = "INSERT INTO produit(name, description, price, category_id, created, modified) 
-        VALUES('".$name."', '".$description."', '".$price."', '".$category."', '".$created."', '".$modified."')";
+        $query = "INSERT INTO produit(name, description, price, image_produit, category_id, created, modified) 
+        VALUES('".$name."', '".$description."', '".$price."','".$image_produit."', '".$category."', '".$created."', '".$modified."')";
         $stmt = $conn->prepare($query);
         
         $result = $stmt->execute();
@@ -99,10 +100,11 @@
         $name = $_PUT["name"];
         $description = $_PUT["description"];
         $price = $_PUT["price"];
+        $image_produit = $_PUT["image_produit"];
         $category = $_PUT["category"];
         $modified = date('Y-m-d H:i:s');
         //construire la requête SQL
-        $query="UPDATE produit SET name='".$name."', description='".$description."', price='".$price."', category_id='".$category."', modified='".$modified."' WHERE id=".$id;
+        $query="UPDATE produit SET name='".$name."', description='".$description."', price='".$price."',image_produit='".$image_produit."', category_id='".$category."', modified='".$modified."' WHERE id=".$id;
         $stmt = $conn->prepare($query);
         
         $result = $stmt->execute();

@@ -4,17 +4,18 @@ CREATE DATABASE stock;
 USE stock;
 
 CREATE TABLE IF NOT EXISTS `categorie` (
-`id` int(5) ZEROFILL NOT NULL AUTO_INCREMENT,
+`id` int(5) NOT NULL AUTO_INCREMENT,
 `libelle_categorie` varchar(256) NOT NULL,
 primary key (id)
 ) ENGINE=MyISAM DEFAULT CHARSET=utf8;
 
 CREATE TABLE IF NOT EXISTS `produit` (
-`id` int(5) ZEROFILL NOT NULL AUTO_INCREMENT,
+`id` int(5) NOT NULL AUTO_INCREMENT,
 `name` varchar(256) NOT NULL,
 `description` text NOT NULL,
 `price` DECIMAL(10,2) NOT NULL,
-`category_id` int(5) ZEROFILL NOT NULL,
+`image_produit` varchar(256) NOT NULL,
+`category_id` int(5) NOT NULL,
 `created` datetime,
 `modified` timestamp DEFAULT CURRENT_TIMESTAMP,
 primary key (id),
@@ -27,7 +28,7 @@ INSERT INTO categorie VALUES (2, 'informatique');
 INSERT INTO categorie VALUES (3, 'automobile');
 
 
-INSERT INTO produit VALUES (1, 'PEN', 'Pen Blue', 1.23, 1, '2020-7-04', '2020-9-03');
-INSERT INTO produit VALUES (2, 'PC', 'Apple products', 300.99, 2, '2019-1-01', '2019-5-14');
-INSERT INTO produit VALUES (3, 'Car', 'Mercedes benz', 985470.47, 3, '2019-2-06', '2019-6-23');
-INSERT INTO produit VALUES (4, 'PEN', 'Pen Black', 1.23, 1, '2020-7-04', '2020-9-03');
+INSERT INTO produit VALUES (1, 'PEN', 'Pen Blue', 1.23,'http://localhost/api/images/cat.jpg', 1, '2020-7-04', '2020-9-03');
+INSERT INTO produit VALUES (2, 'PC', 'Apple products',300.99,'http://localhost/api/images/cat.jpg', 2, '2019-1-01', '2019-5-14');
+INSERT INTO produit VALUES (3, 'Car', 'Mercedes benz', 985470.47,'http://localhost/api/images/cat.jpg', 3, '2019-2-06', '2019-6-23');
+INSERT INTO produit VALUES (4, 'PEN', 'Pen Black', 1.23,'http://localhost/api/images/cat.jpg', 1,'2020-7-04', '2020-9-03');

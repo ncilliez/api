@@ -1,7 +1,7 @@
 <?php
 
     $url = 'http://localhost/api/produits';
-    $data = array('name' => 'PEC', 'description' => 'Pencil 2H', 'price' => 2.25, 'category' => '9');
+    $data = array('name' => 'PEC', 'description' => 'Pencil 2H', 'price' => 2.25,'image_produit' => 'http://localhost/api/images/cat.jpg', 'category' => '3');
 
     $options = array(
         'http' => array(
