@@ -5,10 +5,9 @@ RewriteRule ^produits/?$ produits.php [NC,L]
 # RewriteRule ^produits/(\d+)$ produits.php?id=$1 [NC,L]
 RewriteRule ^produits/([^/]+)$ produits.php?id=$1 [NC,L]
 
-
 # Règle pour la page catégorie
-RewriteRule ^categorie/?$ categorie.php [NC,L]
-RewriteRule ^categorie/(\d+)$ categorie.php?id=$1 [NC,L]
+RewriteRule ^categories/?$ categories.php [NC,L]
+RewriteRule ^categories/(\d+)$ categories.php?id=$1 [NC,L]
 
 
 
