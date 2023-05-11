@@ -40,25 +40,50 @@
         break;
     }
 
-    function getProducts($id = null){
+    function getProducts($id = null) {
         $conn = getConnexion();
-        if ($id === null) {
+        if(isset($_GET['categorie']) && isset($_GET['items']) && isset($_GET['page'])){
+            $categorie = $_GET['categorie'];
+            $items = $_GET['items'];
+            $page = ($_GET['page']-1)*$items;
+            $query = "SELECT p.id, p.name, p.description, p.price, p.image_produit, c.libelle_categorie as 'categorie' 
+                      FROM produit p INNER JOIN categorie c ON p.category_id = c.id 
+                      WHERE c.libelle_categorie = :categorie LIMIT :items OFFSET :page";
+        } else if(isset($_GET['categorie'])){
+            $categorie = $_GET['categorie'];
+            $query = "SELECT p.id, p.name, p.description, p.price, p.image_produit, c.libelle_categorie as 'categorie' 
+                      FROM produit p INNER JOIN categorie c ON p.category_id = c.id 
+                      WHERE c.libelle_categorie = :categorie";
+        } else if(isset($_GET['items']) && isset($_GET['page'])){
+            $items = $_GET['items'];
+            $page = ($_GET['page']-1)*$items;
+            $query = "SELECT * FROM produit LIMIT :items OFFSET :page";
+        } else if ($id === null) {
             $query = "SELECT * FROM produit";
         } else {
-            if(!is_numeric($id)){          
-                $query = "SELECT p.id, p.name, p.description, p.price, p.image_produit, c.libelle_categorie as 'categorie' 
-                from produit p inner join categorie c on p.category_id = c.id where c.libelle_categorie = '$id'"; 
-            } else {
-                $query = "SELECT * FROM produit WHERE id = " . $id;
-            }
+            $query = "SELECT * FROM produit WHERE id = :id";
         }
+        // Utilisation de prepared statements pour éviter les attaques SQL Injection
         $stmt = $conn->prepare($query);
+        if (isset($id)) {
+            $stmt->bindParam(':id', $id);
+        }
+        if (isset($categorie)) {
+            $stmt->bindParam(':categorie', $categorie);
+        }
+        if (isset($items)) {
+            $stmt->bindParam(':items', $items, PDO::PARAM_INT);
+        }
+        if (isset($page)) {
+            $stmt->bindParam(':page', $page, PDO::PARAM_INT);
+        }
         $stmt->execute();
         $response = $stmt->fetchAll(PDO::FETCH_ASSOC);
         $stmt->closeCursor();
         sendJSON($response);
     }
-
+    
+   
     function addProduct() {
         $conn = getConnexion();
         $name = $_POST["name"];
