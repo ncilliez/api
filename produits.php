@@ -83,21 +83,34 @@
         sendJSON($response);
     }
     
-   
     function addProduct() {
+        var_dump($_FILES);
         $conn = getConnexion();
-        $name = $_POST["name"];
-        $description = $_POST["description"];
-        $price = $_POST["price"];
-        $image_produit = $_POST["image_produit"];
-        $category = $_POST["category"];
-        $created = date('Y-m-d H:i:s');
-        $modified = date('Y-m-d H:i:s');
-        
+    
+        // Récupération des données
+        $name = $_POST['name'];
+        $description = $_POST['description'];
+        $price = $_POST['price'];
+        $category = $_POST['category'];
+    
+        // Récupération de l'image
+        $image = $_POST['image_produit'];
+        $image_data = base64_decode($image);
+        $image_path = 'images/' . uniqid() . '.jpg'; // Génère un nom de fichier unique
+        $image_produit = 'http://localhost/api/'.$image_path;
+        file_put_contents($image_path, $image_data);
+    
         $query = "INSERT INTO produit(name, description, price, image_produit, category_id, created, modified) 
-        VALUES('".$name."', '".$description."', '".$price."','".$image_produit."', '".$category."', '".$created."', '".$modified."')";
+                VALUES(:name, :description, :price, :image_produit, :category_id, :created, :modified)";
         $stmt = $conn->prepare($query);
-        
+        $stmt->bindParam(':name', $name);
+        $stmt->bindParam(':description', $description);
+        $stmt->bindParam(':price', $price);
+        $stmt->bindParam(':image_produit', $image_produit);
+        $stmt->bindParam(':category_id', $category);
+        $stmt->bindValue(':created', date('Y-m-d H:i:s'));
+        $stmt->bindValue(':modified', date('Y-m-d H:i:s'));
+    
         $result = $stmt->execute();
         
         if($result) {   
@@ -111,9 +124,7 @@
                 'status_message'=>'ERREUR! '
             );
         }
-        
         // Retournez la réponse en tant que JSON
-        header('Content-Type: application/json');
         sendJSON($response);
     }
     
