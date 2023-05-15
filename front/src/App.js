@@ -1,9 +1,10 @@
 import './App.css';
+import Show from './components/show';
 
 function App() {
     return (
         <div className="App">
-            projet
+            <Show />
         </div>
     );
 }
