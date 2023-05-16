@@ -84,7 +84,6 @@
     }
     
     function addProduct() {
-        var_dump($_FILES);
         $conn = getConnexion();
     
         // Récupération des données
@@ -94,14 +93,13 @@
         $category = $_POST['category'];
     
         // Récupération de l'image
-        $image = $_POST['image_produit'];
-        $image_data = base64_decode($image);
-        $image_path = 'images/' . uniqid() . '.jpg'; // Génère un nom de fichier unique
-        $image_produit = 'http://localhost/api/'.$image_path;
-        file_put_contents($image_path, $image_data);
+        $extension = pathinfo($_FILES['image_produit']['name'], PATHINFO_EXTENSION);
+        $image_path = 'images/' . uniqid() . '.' .$extension; // Génère un nom de fichier unique
+        $image_produit = 'http://192.168.1.10/api/' . $image_path;
+        move_uploaded_file($_FILES['image_produit']['tmp_name'], $image_path);
     
-        $query = "INSERT INTO produit(name, description, price, image_produit, category_id, created, modified) 
-                VALUES(:name, :description, :price, :image_produit, :category_id, :created, :modified)";
+        $query = "INSERT INTO produit (name, description, price, image_produit, category_id, created, modified) 
+                  VALUES (:name, :description, :price, :image_produit, :category_id, :created, :modified)";
         $stmt = $conn->prepare($query);
         $stmt->bindParam(':name', $name);
         $stmt->bindParam(':description', $description);
@@ -112,21 +110,23 @@
         $stmt->bindValue(':modified', date('Y-m-d H:i:s'));
     
         $result = $stmt->execute();
-        
-        if($result) {   
-            $response=array(
-                'status'=> 1,
-                'status_message'=>'Produit ajouté avec succès.'
+    
+        if ($result) {   
+            $response = array(
+                'status' => 1,
+                'status_message' => 'Produit ajouté avec succès.'
             );
         } else {
-            $response=array(
-                'status'=> 0,
-                'status_message'=>'ERREUR! '
+            $response = array(
+                'status' => 0,
+                'status_message' => 'ERREUR!'
             );
         }
+    
         // Retournez la réponse en tant que JSON
         sendJSON($response);
     }
+    
     
     function updateProduct($id)
     {
