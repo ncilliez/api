@@ -5,7 +5,7 @@ function Show() {
     const [produits, setProduits] = useState([])
     const [page, setPage] = useState(1)
     const [stop, setStop] = useState(false)
-    const items = 3;
+    const items = 5;
     
     useEffect(() => {
         axios
